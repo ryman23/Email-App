@@ -1,2 +1,2 @@
 # Email-App
-An in development email application that Generates and email with the employee's first and last name, determines their department, generates a random string for the password, and displays the name, email, and mailbox capacity.
+An in-developement application that takes the user's first ad last names plus their new department and generates them a company email and temporary password.
