@@ -11,9 +11,9 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import javafx.scene.layout.GridPane;
+import java.sql.*;
 
 public class EmailApp extends Application{
 	
@@ -21,7 +21,7 @@ public class EmailApp extends Application{
 		// Launch the GUI
 		launch(args);
 	}
-	
+
 	// Variables
 	Button submitButton;
 	Button closeButton;
@@ -69,7 +69,8 @@ public class EmailApp extends Application{
 		submitButton.setText("Submit");
 			
 		// Button events
-		submitButton.setOnAction(e -> isChar(firstNameInput, lastNameInput, firstNameInput.getText(), lastNameInput.getText(), textArea, randomPassword(defaultPasswordLen), deptComboBox.getValue()));
+		submitButton.setOnAction(e -> 
+			isChar(firstNameInput, lastNameInput, firstNameInput.getText(), lastNameInput.getText(), textArea, randomPassword(defaultPasswordLen), deptComboBox.getValue()));
 		
 		// Main Scene/layout
 		GridPane grid = new GridPane();
@@ -126,10 +127,26 @@ public class EmailApp extends Application{
 			
 			// Validate that the strings contain only letters
 			if(firstName.matches(regex) && lastName.matches(regex)){
-				textArea.setText(firstName + " " + lastName + " Successfully added to the database."
-						+ "\nHere's your information: " + "\nFirst Name: " + firstName +"\nLast Name: " + lastName + "\nDepartment: " + deptComboBox +
-						"\nEmail: " + email + "\nTemporary Password: " +  password
-						);
+				// Submit the information to the database
+				try{
+					// Establish a connection to the database
+					Connection myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/javaemailapp", "Admin", "***********");
+					// Create a statement
+					Statement myStmt = myConn.createStatement();
+					// Execute an SQL query
+					String sql = "INSERT INTO employees "
+							+ "(firstName, lastName, email, password, deptComboBox)"
+							+ "VALUES ('"+firstName+"', '"+lastName+"', '"+email+"', '"+password+"', '"+deptComboBox+"')";
+					myStmt.executeUpdate(sql);
+					textArea.setText("Insert complete."
+							+ "\nHere's your information: " + "\nFirst Name: " + firstName +"\nLast Name: " + lastName + "\nDepartment: " + deptComboBox +
+							"\nEmail: " + email + "\nTemporary Password: " +  password
+							);
+					
+				} catch(Exception exc){
+					exc.printStackTrace();
+					textArea.setText("Insert failed.");
+				}
 				return true;
 			}
 			else{
@@ -139,27 +156,3 @@ public class EmailApp extends Application{
 	}
 	
 }
-/*
-try{
-	// Establish a connection to the database
-	Connection myConn = DriverManager.getConnection("jdbc:mysql://localhost:3306/javaemailapp", "Admin", "********");
-	// Create a statement
-	Statement myStmt = myConn.createStatement();
-	// Execute SQL query
-	ResultSet myRs = myStmt.executeQuery("SELECT * FROM employees");
-	// Process the result process
-	while(myRs.next()){
-		System.out.println("Emp Id: " + myRs.getInt("empID") + "\nFirst Name: " + myRs.getString("firstName") + "\nLast Name: " + 
-		myRs.getString("lastName") + "\nEmail: " + myRs.getString("email"));
-	}
-	
-} catch(Exception exc){
-	exc.printStackTrace();
-}
-
-
-
-//Email em1 = new Email("John", "Smith");
-//System.out.println(em1.showInfo());
-
-*/
